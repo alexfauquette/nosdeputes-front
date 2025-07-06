@@ -15,6 +15,6 @@ jobs:
           password: ${{ secrets.SCALEWAY_API_KEY }}
           registry: ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}
       - name: Build the Docker image
-        run: docker build . -t ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/nos-deputes:staging --build-arg NEXT_PUBLIC_TRICOTEUSES_API_URL=https://app-staging.tricoteuses.fr
+        run: docker build . -t ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/nos-deputes:staging --build-arg NEXT_PUBLIC_TRICOTEUSES_API_URL=https://app.tricoteuses.fr
       - name: Push the Docker Image
         run: docker push ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/nos-deputes:staging
