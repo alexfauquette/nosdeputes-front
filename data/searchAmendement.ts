@@ -1,5 +1,4 @@
-import { Amendement, Dossier } from "@prisma/client";
-import { parseDossier } from "./parsers/parseDossier";
+import { Amendement } from "@prisma/client";
 
 interface SearchAmendementParams {
   /**
@@ -11,21 +10,20 @@ interface SearchAmendementParams {
    */
   page?: number;
   /**
-   * @default """
-   */
-  sort?: string;
-  /**
    * @default "numeroOrdreDepot.asc"
    */
+  sort?: string;
+
   search?: string;
   /**
    * L'uid of the document sur lequel porte l'amendment.
    */
-  documentRefUid: string;
+  documentRefUid?: string;
   /**
    * L'uid of l'auteur de l'amendment.
    */
   acteurRefUid?: string;
+  sortAmendement?: string;
 }
 
 export async function searchAmendement(
@@ -33,9 +31,12 @@ export async function searchAmendement(
 ): Promise<Amendement[] | null> {
   const {
     perPage = 10,
-    page = 0,
+    page = 1,
     sort = "numeroOrdreDepot.asc",
     search = "",
+    documentRefUid,
+    acteurRefUid,
+    sortAmendement,
   } = params;
 
   const searchParams = new URLSearchParams({
@@ -47,6 +48,15 @@ export async function searchAmendement(
   if (search) {
     searchParams.set("search", search);
   }
+  if (acteurRefUid) {
+    searchParams.set("acteurRefUid", acteurRefUid);
+  }
+  if (sortAmendement) {
+    searchParams.set("sortAmendement", sortAmendement);
+  }
+  if (documentRefUid) {
+    searchParams.set("documentRefUid", documentRefUid);
+  }
   try {
     const rep = await fetch(
       `${process.env.NEXT_PUBLIC_TRICOTEUSES_API_URL}/amendements?${searchParams}`
@@ -54,8 +64,6 @@ export async function searchAmendement(
 
     const { data } = await rep.json();
 
-    // Transforms all the "yyy-mm-dd" string into Date objects.
-    data?.forEach(parseDossier);
 
     return data;
   } catch (error) {

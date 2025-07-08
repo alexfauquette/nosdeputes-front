@@ -36,7 +36,7 @@ async function getDeputesUnCached(legislature: number): Promise<{
 
     return { acteurs, groups };
   } catch (error) {
-    console.error("Error fetching dossier:", error);
+    console.error("Error fetching deputes:", error);
     return null;
   }
 }

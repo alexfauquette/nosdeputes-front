@@ -6,6 +6,7 @@ import { NavBar, NavigationItem } from "@/components/NavBar";
 import theme from "./theme";
 import { ThemeProvider } from "@mui/material/styles";
 import { CssBaseline } from "@mui/material";
+import Providers from "./providers";
 
 const raleway = Raleway({
   weight: ["400", "600", "700"],
@@ -64,7 +65,7 @@ export default function RootLayout({
             <CssBaseline />
             <main className="flex min-h-screen flex-col">
               <NavBar navigation={navigation} />
-              {children}
+              <Providers>{children}</Providers>
             </main>
           </ThemeProvider>
         </AppRouterCacheProvider>
