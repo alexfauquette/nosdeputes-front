@@ -18,6 +18,8 @@ interface SearchDossierParams {
    * @default ""
    */
   search?: string;
+  include?: string;
+  acteurPrincipalRefUid?: string;
 }
 
 export async function searchDossier(
@@ -28,6 +30,8 @@ export async function searchDossier(
     page = 0,
     sort = "dateDernierActe.desc",
     search = "",
+    include,
+    acteurPrincipalRefUid
   } = params;
 
   const searchParams = new URLSearchParams({
@@ -37,9 +41,18 @@ export async function searchDossier(
     dataset: "17",
   });
 
-  if (search) {
-    searchParams.set("search", search);
-  }
+
+  Object.entries({
+    search,
+    include,
+    acteurPrincipalRefUid,
+  }).forEach(([key, value]) => {
+    if (value) {
+      searchParams.set(key, value);
+    }
+  })
+
+
   try {
     const rep = await fetch(
       `${process.env.NEXT_PUBLIC_TRICOTEUSES_API_URL}/dossiers/?${searchParams}`
