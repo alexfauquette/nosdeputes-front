@@ -20,7 +20,7 @@ async function getDocumentUnCached(
 
     return data;
   } catch (error) {
-    console.error("Error fetching dossier:", error);
+    console.error("Error fetching documents:", error);
     return null;
   }
 }

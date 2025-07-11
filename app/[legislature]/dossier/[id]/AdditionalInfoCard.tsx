@@ -22,7 +22,7 @@ export const AdditionalInfoCard = async (props: {
   );
 
   const validDocuments = documents
-    .filter((document) => document !== null)
+    .filter((document) => document != null)
     .filter((document) => document._count.amendements > 0);
 
   return (
