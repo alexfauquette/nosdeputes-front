@@ -2,7 +2,10 @@
 import React from "react";
 
 import { useQuery } from "@tanstack/react-query";
-import { searchAmendement } from "@/data/searchAmendement";
+import {
+  searchAmendement,
+  sortAmendementPossible,
+} from "@/data/searchAmendement";
 import { useParams } from "next/navigation";
 import { getActeurBySlug } from "@/data/getActeurBySlug";
 
@@ -18,20 +21,6 @@ import LinearProgress from "@mui/material/LinearProgress";
 import MenuItem from "@mui/material/MenuItem";
 
 import debounce from "@/utils/debounce";
-
-const sortAmendementPossible = [
-  "A discuter",
-  "Adopté",
-  "effacé",
-  "En traitement",
-  "Irrecevable",
-  "Irrecevable 40",
-  "Non soutenu",
-  "Rejeté",
-  "Retiré",
-  "Satisfait ou sans objet",
-  "Tombé",
-] as const;
 
 export default function Amendements() {
   const { slug } = useParams<{ slug: string }>();
