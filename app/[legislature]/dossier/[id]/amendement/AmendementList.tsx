@@ -8,106 +8,64 @@ import { Acteur, Amendement, Organe } from "@prisma/client";
 import { Button, Typography } from "@mui/material";
 import { searchAmendement } from "@/data/searchAmendement";
 import { unique } from "@/utils/unique";
+import { useQuery } from "@tanstack/react-query";
 
 export default function AmendementsList(props: {
   numero: string;
-  selectedDocument: string;
-  depute: string;
+  documentUid: string;
+  deputeUid: string;
   status: string;
+  search: string;
 }) {
-  const { numero, depute, status, selectedDocument } = props;
+  const { numero, documentUid, deputeUid, status, search } = props;
 
-  const searchActivated =
-    numero !== "" || selectedDocument !== "" || depute !== "" || status !== "";
-
-  const [amendements, setAmendements] = React.useState<Amendement[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [currentPage, setCurrentPage] = React.useState(1);
-
-  const fetchMoreAmendements = async () => {
-    setIsLoading(true);
-    const data = await searchAmendement({
-      page: currentPage,
-      documentRefUid: selectedDocument,
-    });
-
-    setIsLoading(false);
-    setAmendements((prev) => [...prev, ...unique(data ?? [])]);
-    setCurrentPage((prev) => prev + 1);
-  };
+  const [page, setPage] = React.useState(1);
 
   React.useEffect(() => {
-    let isValid = true;
+    setPage(1);
+  }, [status, documentUid, deputeUid, search]);
 
-    setIsLoading(true);
-    setCurrentPage(1);
-    setAmendements([]);
+  const { data: amendements, isPending } = useQuery({
+    queryKey: ["amendements", status, documentUid, deputeUid, search, page],
 
-    async function fetchInitialDossier() {
+    queryFn: async () => {
       const data = await searchAmendement({
-        page: 1,
-        documentRefUid: selectedDocument,
+        page,
+        perPage: 20,
+        sortAmendement: status,
+        documentRefUid: documentUid,
+        acteurRefUid: deputeUid,
+        search,
       });
+      return data;
+    },
+  });
 
-      if (isValid) {
-        setIsLoading(false);
-        setAmendements(data ?? []);
-        setCurrentPage(2);
-      }
-    }
-    fetchInitialDossier();
+  const { data: nextAmendements, isPending: nextIsPending } = useQuery({
+    queryKey: ["amendements", status, documentUid, deputeUid, search, page + 1],
 
-    return () => {
-      isValid = false;
-    };
-  }, [selectedDocument]);
+    queryFn: async () => {
+      const data = await searchAmendement({
+        page: page + 1,
+        perPage: 20,
+        sortAmendement: status,
+        documentRefUid: documentUid,
+        acteurRefUid: deputeUid,
+        search,
+      });
+      return data;
+    },
+  });
 
-  // const filteredAmendements = amendements
-  //   .filter((amendement) => {
-  //     if (status === "") {
-  //       return true;
-  //     }
-  //     return (amendement.sortAmendement || amendement.etatLibelle) === status;
-  //   })
-  //   .filter((amendement) => {
-  //     if (depute === "") {
-  //       return true;
-  //     }
-  //     return amendement.acteurRefUid === depute;
-  //   })
-  //   .filter((amendement) => {
-  //     if (numero === "") {
-  //       return true;
-  //     }
-  //     if (amendement.numeroLong == null) {
-  //       return false;
-  //     }
-  //     return amendement.numeroLong
-  //       .toLowerCase()
-  //       .startsWith(numero.toLowerCase());
-  //   })
-  //   .filter(
-  //     ({ documentRefUid }) =>
-  //       !selectedDocument || documentRefUid === selectedDocument
-  //   )
-  //   .sort((a, b) =>
-  //     (a.numeroOrdreDepot ?? Number.POSITIVE_INFINITY) <
-  //     (b.numeroOrdreDepot ?? Number.POSITIVE_INFINITY)
-  //       ? -1
-  //       : 1
-  //   );
-
-  if (isLoading) {
-    <p>Loading ...</p>;
-  }
   return (
     <Stack>
       {/* {searchActivated && (
         // <Typography>
         //   {filteredAmendements.length} correspondent à votre recherche
         // </Typography>
-      )} */}
-      {amendements.map((amendement) => (
+        )} */}
+      {isPending && <p>Loading ...</p>}
+      {(amendements ?? []).map((amendement) => (
         <AmendementCard
           amendement={amendement}
           acteurUid={amendement.acteurRefUid}
@@ -115,7 +73,12 @@ export default function AmendementsList(props: {
         />
       ))}
 
-      <Button onClick={fetchMoreAmendements}>Voir plus</Button>
+      <Button
+        disabled={!nextIsPending && nextAmendements?.length === 0}
+        onClick={() => setPage((p) => p + 1)}
+      >
+        Voir plus
+      </Button>
     </Stack>
   );
 }

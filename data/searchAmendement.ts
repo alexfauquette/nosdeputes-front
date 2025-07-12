@@ -26,6 +26,20 @@ interface SearchAmendementParams {
   sortAmendement?: string;
 }
 
+export const sortAmendementPossible = [
+  "A discuter",
+  "Adopté",
+  "effacé",
+  "En traitement",
+  "Irrecevable",
+  "Irrecevable 40",
+  "Non soutenu",
+  "Rejeté",
+  "Retiré",
+  "Satisfait ou sans objet",
+  "Tombé",
+] as const;
+
 export async function searchAmendement(
   params: SearchAmendementParams
 ): Promise<Amendement[] | null> {

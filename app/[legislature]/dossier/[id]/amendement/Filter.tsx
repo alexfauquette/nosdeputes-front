@@ -1,18 +1,12 @@
 import * as React from "react";
 import { MenuItem } from "@mui/material";
 import TextField from "@mui/material/TextField";
-import { AmendementTabProps } from "./AmendementTab";
+import { sortAmendementPossible } from "@/data/searchAmendement";
+import { useQuery } from "@tanstack/react-query";
+import { searchDocument } from "@/data/searchDocument";
 
-const AVAILABLE_STATUS = [
-  "Rejeté",
-  "Irrecevable",
-  "Non soutenu",
-  "Tombé",
-  "Retiré",
-  "Irrecevable 40",
-  "Adopté",
-];
-type FilterProps = AmendementTabProps & {
+type FilterProps = {
+  dossierUid: string;
   numero: string;
   handleNumero: (numero: string) => void;
   selectedDocument: string;
@@ -25,16 +19,29 @@ type FilterProps = AmendementTabProps & {
 
 export const Filter = (props: FilterProps) => {
   const {
+    dossierUid,
     numero,
     handleNumero,
     selectedDocument,
     setSelectedDocument,
-    documents,
     depute,
     handleDepute,
     status,
     handleStatus,
   } = props;
+
+  const { data: documents, isPending: dossierPending } = useQuery({
+    queryKey: ["documents", dossierUid],
+
+    queryFn: async () => {
+      const data = await searchDocument({
+        dossierRefUid: dossierUid,
+        perPage: 50,
+        // include: "_count.amendements", // Does work on single documents but not multiple ones
+      });
+      return data;
+    },
+  });
 
   // const deputes = React.useMemo(() => {
   //   const seenIds = new Set();
@@ -82,11 +89,12 @@ export const Filter = (props: FilterProps) => {
         }}
       >
         {/* <MenuItem value="">Tout document</MenuItem> */}
-        {documents
+        {(documents ?? [])
           .filter((document) => document !== null)
           .map((document) => (
             <MenuItem key={document.uid} value={document.uid}>
-              {document.depotLibelle} ({document._count.amendements})
+              {document.depotLibelle}
+              {/*} ({(document as any)._count.amendements})*/}
             </MenuItem>
           ))}
       </TextField>
@@ -107,7 +115,7 @@ export const Filter = (props: FilterProps) => {
           </MenuItem>
         ))}
       </TextField> */}
-      {/* <TextField
+      <TextField
         select
         size="small"
         variant="outlined"
@@ -117,13 +125,13 @@ export const Filter = (props: FilterProps) => {
           handleStatus(event.target.value);
         }}
       >
-        <MenuItem value="">Status</MenuItem>
-        {AVAILABLE_STATUS.map((state) => (
+        <MenuItem value="">-</MenuItem>
+        {sortAmendementPossible.map((state) => (
           <MenuItem key={state} value={state}>
             {state}
           </MenuItem>
         ))}
-      </TextField> */}
+      </TextField>
     </React.Fragment>
   );
 };
