@@ -26,7 +26,7 @@
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
-    "@tricoteuses/api-parlement": "git+https://git.en-root.org/tricoteuses/tricoteuses-api-parlement.git#staging",
+    "@tricoteuses/api-parlement": "git+https://git.tricoteuses.fr/logiciels/tricoteuses-api-parlement.git#staging",
     "@types/jest": "^29.5.11",
     "@types/node": "^20.10.4",
     "@types/react": "^19.1.0",

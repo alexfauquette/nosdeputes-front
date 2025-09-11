@@ -20,7 +20,7 @@ export const getCommission = React.cache(getCommissionUnCached);
 export default async function CommissionItem({ id }: { id: string }) {
   const commission = await getCommission(id);
 
-  if (commission === null) {
+  if (commission == null) {
     return null;
   }
 
